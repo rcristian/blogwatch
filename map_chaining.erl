@@ -5,8 +5,8 @@
 main([Blogger, Topic, "-riakcp", RiakCPath, RiakCDepsPath]) ->
     load_libraries(RiakCPath, RiakCDepsPath),
     RPid = connect_to_riak(),
-    NoOfBlogs = get_number_of_blogs(RPid, list_to_binary(Blogger), list_to_binary(Topic)),
-    io:format("~p~n", [NoOfBlogs]).
+    {ok,[{_,[NoOfBlogs]}]} = get_number_of_blogs(RPid, list_to_binary(Blogger), list_to_binary(Topic)),
+    io:format("No. of blogs matching criteria: ~p~n", [NoOfBlogs]).
 
 load_libraries(RiakCPath, RiakCDepsPath) ->
     code:add_patha(RiakCPath),
