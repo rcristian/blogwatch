@@ -18,15 +18,15 @@ connect_to_riak() ->
 
 get_number_of_blogs(RPid, Blogger, Topic) ->
     % function to get the scan objects associated with a blogger
-    ScanKeysForBlogger = fun(BloggerObject, undefined, none) ->
+    ScanKeysForBloggerFun = fun(BloggerObject, undefined, none) ->
         ScanKeys = binary_to_term(riak_object:get_value(BloggerObject)),
         % provide input for the next map opperation that will look into the 'scans' bucket
         [ [<<"scans">>, SK] || SK <- ScanKeys ]
     end,
-    MapperFunBloggers = {map, {qfun, ScanKeysForBlogger}, none, false},
+    MapperFunBloggers = {map, {qfun, ScanKeysForBloggerFun}, none, false},
 
     % function to filter blogs that are bound to a blogger / blog topic
-    FilterTopic = fun(ScanObject, _ScanData, {BloggerToFilter, BlogTopic}) ->
+    FilterTopicFun = fun(ScanObject, _ScanData, {BloggerToFilter, BlogTopic}) ->
         BlogsList = binary_to_term(riak_object:get_value(ScanObject)),
         FilteredBlogsList = lists:filter(
             fun(Blg) -> case Blg of
@@ -35,9 +35,10 @@ get_number_of_blogs(RPid, Blogger, Topic) ->
                        end
             end, BlogsList
         ),
+        % return for reduce step the number of matching blogs in this scan
         [length(FilteredBlogsList)]
     end,
-    MapperFunScans = {map, {qfun, FilterTopic}, {Blogger, Topic}, false},
+    MapperFunScans = {map, {qfun, FilterTopicFun}, {Blogger, Topic}, false},
 
     CountBlogsFun = fun(BlogsCount, none) -> 
         [lists:foldl(fun(NoBlogs, Sum) -> NoBlogs + Sum end, 0, BlogsCount)]
