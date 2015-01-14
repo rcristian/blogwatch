@@ -14,3 +14,4 @@ Then run the map-reduce operation to get some aggregated data from the DB:
 
     $ ./map_chaining.erl robert78 best-pencil-ever-made -riakcp <path-to-riak-erlang-client>/ebin <path-to-riak-erlang-client>/deps/protobuffs/ebin
 
+Also, see the [wiki](../wiki)
